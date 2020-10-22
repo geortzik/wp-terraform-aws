@@ -63,7 +63,7 @@ ingress {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-
+}
 resource "aws_elb" "elb1" {
   name               = "elb1"
   availability_zones = ["eu-central-1b", "eu-central-1a"]
