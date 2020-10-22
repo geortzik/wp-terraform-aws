@@ -63,3 +63,25 @@ ingress {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+resource "aws_elb" "elb1" {
+  name               = "elb1"
+  availability_zones = ["eu-central-1b", "eu-central-1a"]
+  security_groups    = [aws_security_group.elb_sg.id]
+  instances          = [aws_instance.elli.id]
+
+#  listener {
+#    instance_port     = 80
+#    instance_protocol = "http"
+#    lb_port           = 80
+#    lb_protocol       = "http"
+#  }
+
+  listener {
+    instance_port      = 80
+    instance_protocol  = "http"
+    lb_port            = 443
+    lb_protocol        = "https"
+  }
+}
+
