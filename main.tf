@@ -85,3 +85,14 @@ resource "aws_elb" "elb1" {
   }
 }
 
+resource "aws_db_instance" "db_1" {
+  allocated_storage    = 20
+# storage_type         = "gp2"
+  engine               = "mysql"
+  instance_class       = "db.t2.micro"
+  name                 = "db1"
+# username             = "foo"
+# password             = "foobarbaz"
+  port                 = 3306
+  availability_zone    = "eu-central-1b"
+}
