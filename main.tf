@@ -54,3 +54,7 @@ attribute {
 
 }
 
+resource "aws_instance" "vm1" {
+  ami           = "ami-0c960b947cbb2dd16"
+  instance_type = "t2.micro"
+}
