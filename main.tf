@@ -54,7 +54,25 @@ resource "aws_dynamodb_table" "tf_lock_State" {
 
 }
 
-resource "aws_instance" "vm1" {
-  ami           = "ami-0c960b947cbb2dd16"
-  instance_type = "t2.micro"
+resource "aws_vpc" "main" {
+  cidr_block       = "190.160.0.0/16"
+  instance_tenancy = "default"
+
+  tags = {
+    Name = "main"
+  }
 }
+
+resource "aws_subnet" "subnet1" {
+  vpc_id     = "${aws_vpc.main.id}"
+  cidr_block = "190.160.1.0/24"
+
+  tags = {
+    Name = "Subnet1"
+  }
+}
+
+#resource "aws_instance" "vm1" {
+#  ami           = "ami-0c960b947cbb2dd16"
+#  instance_type = "t2.micro"
+#}
