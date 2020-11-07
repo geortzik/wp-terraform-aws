@@ -61,29 +61,95 @@ resource "aws_default_vpc" "default" {
   }
 }
 
-#Adopt default subnet1 into managment
-resource "aws_default_subnet" "default_subnet1" {
+#resource "aws_internet_gateway" "gw" {
+#  vpc_id = aws_default_vpc.default.id
+#
+#  tags = {
+#    Name = "main"
+#  }
+#}
+
+
+data "aws_internet_gateway" "default" {
+  internet_gateway_id = "igw-00882b6b"
+}
+
+#Create subnet1
+resource "aws_subnet" "subnet1" {
   availability_zone = "eu-central-1a"
+  vpc_id            = aws_default_vpc.default.id
+  cidr_block        = "172.31.254.0/24"
 
   tags = {
-    Name = "Default subnet for eu-central-1a"
+    Name = "Subnet for eu-central-1a"
   }
 }
 
-#Adopt default subnet2 into managment
-resource "aws_default_subnet" "default_subnet2" {
+#Create subnet2
+resource "aws_subnet" "subnet2" {
   availability_zone = "eu-central-1b"
+  vpc_id            = aws_default_vpc.default.id
+  cidr_block        = "172.31.255.0/24"
 
   tags = {
-    Name = "Default subnet for eu-central-1b"
+    Name = "Subnet for eu-central-1b"
   }
+}
+
+resource "aws_route_table" "r1" {
+  vpc_id = aws_default_vpc.default.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = data.aws_internet_gateway.default.id
+  }
+
+#  route {
+#    cidr_block             = "172.31.0.0/16"
+#    local_gateway_id = 
+#  }
+
+  tags = {
+    Name = "Subnet1 route table"
+  }
+}
+
+resource "aws_route_table" "r2" {
+  vpc_id = aws_default_vpc.default.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = data.aws_internet_gateway.default.id
+  }
+
+#  route {
+#    cidr_block             = "172.31.0.0/16"
+#    local_gateway_id =      
+#  }
+
+  tags = {
+    Name = "Subnet2 route table"
+  }
+}
+
+resource "aws_route_table_association" "a" {
+  subnet_id      = aws_subnet.subnet1.id
+  route_table_id = aws_route_table.r1.id
+}
+
+resource "aws_route_table_association" "b" {
+  subnet_id      = aws_subnet.subnet2.id
+  route_table_id = aws_route_table.r2.id
 }
 
 #Create vm instance vm1
 resource "aws_instance" "vm1" {
   ami                     = "ami-0c960b947cbb2dd16"
   instance_type           = "t2.micro"
-  vpc_security_group_ids = [aws_security_group.vm1_sg.id]
+  vpc_security_group_ids  = [aws_security_group.vm1_sg.id]
+  subnet_id               = aws_subnet.subnet1.id
+ # depends_on              = [aws_internet_gateway.default]
+
 }
 
 #Create security group for the load balancer
@@ -136,7 +202,7 @@ ingress {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["94.66.145.102/32"]
+    cidr_blocks = ["188.4.230.124/32"]
   }
 
   egress {
@@ -168,7 +234,7 @@ resource "aws_lb" "lb1" {
 #  availability_zones  = ["eu-central-1b", "eu-central-1a"]
   load_balancer_type  = "application"
   security_groups     = [aws_security_group.lb_sg.id]
-  subnets             = ["aws_default_subnet.default_subnet1.id", "aws_default_subnet.default_subnet2.id"]
+  subnets             = ["aws_subnet.subnet1.id", "aws_subnet.subnet2.id"]
 
 }
 
@@ -262,6 +328,16 @@ resource "aws_db_instance" "db_1" {
   password             = random_password.password.result
   port                 = 3306
   availability_zone    = "eu-central-1b"
+  db_subnet_group_name = "aws_db_subnet_group.default"
+}
+
+resource "aws_db_subnet_group" "default" {
+  name       = "main"
+  subnet_ids = ["aws_subnet.subnet1.id", "aws_subnet.subnet2.id"]
+
+  tags = {
+    Name = "My DB subnet group"
+  }
 }
 
 
