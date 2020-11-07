@@ -345,7 +345,7 @@ resource "aws_db_instance" "db_1" {
   password             = random_password.password.result
   port                 = 3306
   availability_zone    = "eu-central-1b"
-  db_subnet_group_name = "aws_db_subnet_group.default.id"
+  db_subnet_group_name = aws_db_subnet_group.default.name
 
 }
 
