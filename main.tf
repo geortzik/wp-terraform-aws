@@ -234,7 +234,7 @@ resource "aws_lb" "lb1" {
 #  availability_zones  = ["eu-central-1b", "eu-central-1a"]
   load_balancer_type  = "application"
   security_groups     = [aws_security_group.lb_sg.id]
-  subnets             = ["aws_subnet.subnet1.id", "aws_subnet.subnet2.id"]
+  subnets             = [aws_subnet.subnet1.id, aws_subnet.subnet2.id]
 
 }
 
@@ -253,10 +253,12 @@ resource "aws_lb_listener" "lb1_listener" {
 }
 
 #Redirect action
-resource "aws_lb_listener_rule" "redirect_http_to_https" {
-  listener_arn = aws_lb_listener.lb1_listener.arn
+resource "aws_lb_listener" "lb1_listener2" {
+  load_balancer_arn = aws_lb.lb1.arn
+  port              = "80"
+  protocol          = "HTTP"
 
-  action {
+  default_action {
     type = "redirect"
 
     redirect {
@@ -265,14 +267,29 @@ resource "aws_lb_listener_rule" "redirect_http_to_https" {
       status_code = "HTTP_301"
     }
   }
-
-  condition {
-    http_header {
-      http_header_name = "X-Forwarded-For"
-      values           = ["192.168.1.*"]
-    }
-  }
 }
+
+#Redirect action
+#resource "aws_lb_listener_rule" "redirect_http_to_https" {
+#  listener_arn = aws_lb_listener.lb1_listener.arn
+
+#  action {
+#    type = "redirect"
+
+#    redirect {
+#      port        = "443"
+#      protocol    = "HTTPS"
+#      status_code = "HTTP_301"
+#    }
+#  }
+
+#  condition {
+#    http_header {
+#      http_header_name = "X-Forwarded-For"
+#      values           = ["192.168.1.*"]
+#    }
+#  }
+#}
 
 #Create a cert for our domain name
 resource "aws_acm_certificate" "default" {
@@ -328,12 +345,13 @@ resource "aws_db_instance" "db_1" {
   password             = random_password.password.result
   port                 = 3306
   availability_zone    = "eu-central-1b"
-  db_subnet_group_name = "aws_db_subnet_group.default"
+  db_subnet_group_name = "aws_db_subnet_group.default.id"
+
 }
 
 resource "aws_db_subnet_group" "default" {
   name       = "main"
-  subnet_ids = ["aws_subnet.subnet1.id", "aws_subnet.subnet2.id"]
+  subnet_ids = [aws_subnet.subnet1.id, aws_subnet.subnet2.id]
 
   tags = {
     Name = "My DB subnet group"
