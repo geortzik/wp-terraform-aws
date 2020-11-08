@@ -346,6 +346,7 @@ resource "aws_db_instance" "db_1" {
   port                 = 3306
   availability_zone    = "eu-central-1b"
   db_subnet_group_name = aws_db_subnet_group.default.name
+  skip_final_snapshot  = true
 
 }
 
