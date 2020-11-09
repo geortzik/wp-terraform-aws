@@ -327,12 +327,17 @@ resource "aws_acm_certificate_validation" "default" {
   validation_record_fqdns = [for record in aws_route53_record.validation : record.fqdn]
 }
 
+#Create alias record for the lb 
 resource "aws_route53_record" "www" {
   zone_id = "Z020595615Z5MST8DWA0V"
   name    = "www.aws-gt.nkorb.gr"
   type    = "A"
-  ttl     = "300"
-  records = [aws_lb.lb1.dns_name]
+  
+  alias{
+    name                   = aws_lb.lb1.dns_name
+    zone_id                = aws_lb.lb1.zone_id
+    evaluate_target_health = true
+  }
 }
 
 #Create a random password for RDS db instance
