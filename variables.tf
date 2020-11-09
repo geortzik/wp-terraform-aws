@@ -14,8 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#AWS variables
-
+# AWS variables
 variable "aws_region" {
   description = "AWS region"
   type        = string
@@ -28,36 +27,32 @@ variable "aws_ig_id" {
   default     = "CHANGEME"
 }
 
-variable "aws_av_zone_1" {
-  description = "AWS availability zone 1"
+variable "aws_az_a" {
+  description = "AWS availability zone a"
   type        = string
   default     = "eu-west-3a"
 }
 
-variable "aws_av_zone_2" {
-  description = "AWS availability zone 2"
+variable "aws_az_b" {
+  description = "AWS availability zone b"
   type        = string
   default     = "eu-west-3b"
 }
 
-
-#Remote state variables
-
+# Remote state variables
 variable "bucket_name" {
   description = "Unique name of the s3 state bucket"
   type        = string
-  default     = "myuniquebucketname"
+  default     = "CHANGEME"
 }
 
 variable "dynamodb_table_name" {
   description = "Unique name of the dynamodb table"
   type        = string
-  default     = "myuniquetablename"
+  default     = "CHANGEME"
 }
 
-
-#Subnet variables
-
+# Subnet variables
 variable "subnet_cidr_block_1" {
   description = "CIDR block for subnet1"
   type        = string
@@ -70,16 +65,14 @@ variable "subnet_cidr_block_2" {
   default     = "192.0.2.192/26"
 }
 
-#Local machine variables for SSH
-
+# Local machine variables for SSH
 variable "my_ip" {
   description = "CIDR block for SSH"
   type        = string
   default     = "192.0.2.0/32"
 }
 
-#VM instance variables - free tier eligible
-
+# VM instance variables - free tier eligible
 variable "vm_ami_id" {
   description = "AMI for the provisioned VM instance"
   type        = string
@@ -92,9 +85,7 @@ variable "vm_instance_type" {
   default     = "t2.micro"
 }
 
-
-#Domain variables
-
+# Domain variables
 variable "domain_name" {
   description = "Domain name"
   type        = string
@@ -107,9 +98,7 @@ variable "zone_id" {
   default     = "CHANGEME"
 }
 
-
-#RDS db instance variables - free tier eligible
-
+# RDS db instance variables - free tier eligible
 variable "db_engine" {
   description = "Engine for the RDS db instance"
   type        = string
@@ -134,8 +123,7 @@ variable "db_username" {
   default     = "rds_admin"
 }
 
-#Public key var
-
+# Public key var
 variable "public_key" {
   description = "Public key for the key pair"
   type        = string

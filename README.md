@@ -12,14 +12,14 @@ Parameter | Description | Default
 --------- | ----------- | -------
 `aws_region` | AWS region | `"eu-west-3"`
 `aws_ig_id` | AWS internet gateway id | `"CHANGEME"`
-`aws_av_zone_1` | AWS availability zone 1 | `"eu-west-3a"`
-`aws_av_zone_2` | AWS availability zone 2 | `"eu-west-3b"`
-`bucket_name` | Name of the S3 bucket. Needs to be unique | `"myuniquebucketname"`
-`dynamodb_table_name` | Name of the dynamodb table. Needs to be unique | `"myuniquetablename"`
+`aws_az_a` | AWS availability zone a | `"eu-west-3a"`
+`aws_az_b` | AWS availability zone b | `"eu-west-3b"`
+`bucket_name` | Name of the S3 bucket. Needs to be unique | `"CHANGEME"`
+`dynamodb_table_name` | Name of the dynamodb table. Needs to be unique | `"CHANGEME"`
 `subnet_cidr_block_1` | CIDR block for subnet1 | `"192.0.2.128/26"`
 `subnet_cidr_block_2` | CIDR block for subnet2 | `"192.0.2.192/26"`
 `my_ip` | CIDR block for SSH | `"192.0.2.0/32"`
-`vm_ami_id` | AMI for the provisioned VM instance. Default is Ubuntu 20.04 LTS (Focal) image for the specific region (eu-west-3). Keep in mind to select one that fits your needs and your selected region. Free-tier eligible | `"CHANGEME"`
+`vm_ami_id` | AMI for the provisioned VM instance. Keep in mind to select one that fits your needs and your selected region | `"CHANGEME"`
 `vm_instance_type` | Instance type for the provisioned VM instance. Default is free-tier eligible | `"t2.micro"`
 `domain_name` | Domain name | `"www.example.com"`
 `zone_id` | Zone id | `"CHANGEME"`
@@ -72,40 +72,41 @@ You need to build the backend before enabling it.
 Comment out the backend block like this:
 
 ```
-#Require TF version to be same or greater than 0.12.13
+#Require TF version to be same or greater than 0.14
 terraform {
-  required_version = ">=0.12.13"
+  required_version = ">=0.14"
 #  backend "s3" {
-#    bucket         = "myuniquetfk3yfoobucket"
+#    bucket         = "CHANGEME"
 #    key            = "terraform.tfstate"
 #    region         = "eu-west-3"
-#    dynamodb_table = "myuniquefootable"
+#    dynamodb_table = "CHANGEME"
 #    encrypt        = "true"
 #  }
 }
 ```
-Run `terraform init`. This will create a state file locally.
-Then you should `terraform plan` (you should always plan first) and finally `terraform apply`.
-This will build (besides the whole infra) an s3 bucket and a dynamoDB table.
+- Run `terraform init`. This will create a state file locally.
+- Then `terraform plan` (you should always plan first).
+- Finally `terraform apply`. This will build (besides the whole infra) an s3 bucket and a dynamoDB table.
 
 Now that you have those resources, you need to uncomment the remote state backend like this:
 
 ```
-#Require TF version to be same or greater than 0.12.13
+#Require TF version to be same or greater than 0.14
 terraform {
-  required_version = ">=0.12.13"
+  required_version = ">=0.14"
   backend "s3" {
-    bucket         = "myuniquetfk3yfoobucket"
+    bucket         = "CHANGEME"
     key            = "terraform.tfstate"
     region         = "eu-west-3"
-    dynamodb_table = "myuniquefootable"
+    dynamodb_table = "CHANGEME"
     encrypt        = "true"
   }
 }
 ```
 
 Now you are ready to push the local `.tfstate` file to the remote backend.
-Rerun `terraform init`, for terraform to realize the added remote backend.
+
+- Rerun `terraform init`, for terraform to realize the added remote backend.
 
 ### GitHub Actions
 
