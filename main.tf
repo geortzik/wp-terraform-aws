@@ -327,6 +327,14 @@ resource "aws_acm_certificate_validation" "default" {
   validation_record_fqdns = [for record in aws_route53_record.validation : record.fqdn]
 }
 
+resource "aws_route53_record" "www" {
+  zone_id = "Z020595615Z5MST8DWA0V"
+  name    = "www.aws-gt.nkorb.gr"
+  type    = "A"
+  ttl     = "300"
+  records = [aws_lb.lb1.dns_name]
+}
+
 #Create a random password for RDS db instance
 resource "random_password" "password" {
   length = 16
