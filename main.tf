@@ -13,7 +13,7 @@ terraform {
 
 #Download AWS provider
 provider "aws" {
-  region = "eu-central-1"
+  region = var.aws_region
 }
 
 #Build an s3 bucket to store TF state
@@ -38,7 +38,7 @@ resource "aws_s3_bucket" "state_bucket" {
 
 #Build a DynamoDB to use for terraform state locking
 resource "aws_dynamodb_table" "tf_lock_State" {
-  name = "myuniqueddbdumtable"
+  name = var.dynamodb_table_name
 
   #Change the default billing mode
   billing_mode = "PAY_PER_REQUEST"
@@ -71,14 +71,14 @@ resource "aws_default_vpc" "default" {
 
 
 data "aws_internet_gateway" "default" {
-  internet_gateway_id = "igw-00882b6b"
+  internet_gateway_id = var.aws_ig_id
 }
 
 #Create subnet1
 resource "aws_subnet" "subnet1" {
-  availability_zone = "eu-central-1a"
+  availability_zone = var.aws_av_zone_1
   vpc_id            = aws_default_vpc.default.id
-  cidr_block        = "172.31.254.0/24"
+  cidr_block        = var.subnet_cidr_block_1
 
   tags = {
     Name = "Subnet for eu-central-1a"
@@ -87,9 +87,9 @@ resource "aws_subnet" "subnet1" {
 
 #Create subnet2
 resource "aws_subnet" "subnet2" {
-  availability_zone = "eu-central-1b"
+  availability_zone = var.aws_av_zone_2
   vpc_id            = aws_default_vpc.default.id
-  cidr_block        = "172.31.255.0/24"
+  cidr_block        = var.subnet_cidr_block_2
 
   tags = {
     Name = "Subnet for eu-central-1b"
@@ -144,8 +144,8 @@ resource "aws_route_table_association" "b" {
 
 #Create vm instance vm1
 resource "aws_instance" "vm1" {
-  ami                     = "ami-0c960b947cbb2dd16"
-  instance_type           = "t2.micro"
+  ami                     = var.ami_id
+  instance_type           = var.instance_type
   vpc_security_group_ids  = [aws_security_group.vm1_sg.id]
   subnet_id               = aws_subnet.subnet1.id
  # depends_on              = [aws_internet_gateway.default]
@@ -293,7 +293,7 @@ resource "aws_lb_listener" "lb1_listener2" {
 
 #Create a cert for our domain name
 resource "aws_acm_certificate" "default" {
-  domain_name               = "www.aws-gt.nkorb.gr"
+  domain_name               = var.domain_name
 #  subject_alternative_name  = "aws-gt.nkorb.gr"
   validation_method         = "DNS"
 
@@ -317,7 +317,7 @@ resource "aws_route53_record" "validation" {
   records         = [each.value.record]
   ttl             = 60
   type            = each.value.type
-  zone_id = "Z020595615Z5MST8DWA0V"
+  zone_id         = var.zone_id 
 }
 
 #Successful validation
@@ -329,8 +329,8 @@ resource "aws_acm_certificate_validation" "default" {
 
 #Create alias record for the lb 
 resource "aws_route53_record" "www" {
-  zone_id = "Z020595615Z5MST8DWA0V"
-  name    = "www.aws-gt.nkorb.gr"
+  zone_id = var.zone_id
+  name    = var.domain_name
   type    = "A"
   
   alias{
@@ -351,13 +351,13 @@ resource "random_password" "password" {
 resource "aws_db_instance" "db_1" {
   allocated_storage    = 20
 # storage_type         = "gp2"
-  engine               = "mysql"
-  instance_class       = "db.t2.micro"
-  name                 = "db1"
-  username             = "foo"
+  engine               = var.db_engine
+  instance_class       = var.instance_class
+  name                 = var.db_name
+  username             = var.db_username
   password             = random_password.password.result
   port                 = 3306
-  availability_zone    = "eu-central-1b"
+  availability_zone    = var.aws_av_zone_2
   db_subnet_group_name = aws_db_subnet_group.default.name
   skip_final_snapshot  = true
 
